@@ -13,13 +13,14 @@ import os
 
 parser = argparse.ArgumentParser(description='Generate images for training/testing')
 parser.add_argument('outDir', help='Output directory')
+parser.add_argument('--font', default='fonts/DroidSansMono.ttf', help='Font for test rendering')
+
 
 args=parser.parse_args()
 
 if not os.path.exists(args.outDir):
     os.mkdir(args.outDir)
 
-FONT='fonts/DroidSansMono.ttf'
 HEIGHT=374
 WIDTH=650
 
@@ -47,7 +48,7 @@ def generate_image(label,outDir='.'):
     im.paste(lbl_logo, (int(WIDTH*1/4-lbl_w/2), int(HEIGHT/2-lbl_h/2)) )
 
     # Label
-    font = ImageFont.truetype(FONT, 100)
+    font = ImageFont.truetype(args.font, 100)
     draw = ImageDraw.Draw(im)
 
     textx=WIDTH*3/4
