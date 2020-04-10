@@ -7,11 +7,23 @@ from PIL import ImageOps
 
 import random
 
+import argparse
+
+import os
+
+parser = argparse.ArgumentParser(description='Generate images for training/testing')
+parser.add_argument('outDir', help='Output directory')
+
+args=parser.parse_args()
+
+if not os.path.exists(args.outDir):
+    os.mkdir(args.outDir)
+
 FONT='fonts/DroidSansMono.ttf'
 HEIGHT=374
 WIDTH=650
 
-def generate_image(label,outputdir='.'):
+def generate_image(label,outDir='.'):
     #
     # Check label format
     if len(label)!=7:
@@ -46,8 +58,8 @@ def generate_image(label,outputdir='.'):
     w,h=draw.textsize(textbot,font=font)
     draw.text((textx-w/2,texty  +10),textbot,fill=(0),font=font)
 
-    im.save('{}/{}.png'.format(outputdir,label),'PNG')
+    im.save('{}/{}.png'.format(outDir,label),'PNG')
 
 
 for i in range(1000):
-    generate_image('{:07d}'.format(random.randrange(9999999)),'testimages')
+    generate_image('{:07d}'.format(random.randrange(9999999)),args.outDir)
