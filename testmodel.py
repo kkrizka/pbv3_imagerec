@@ -3,13 +3,20 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 import glob
 import os
 
 #
-# Load and label the dataset
-CLASS_NAMES=np.arange(0,10)
+parser = argparse.ArgumentParser(description='Train and test a model for identifying IDs')
+parser.add_argument('trainDir', help='Directory with train dataset')
+parser.add_argument('testDir', help='Directory with test dataset')
 
+args=parser.parse_args()
+
+
+#
+# Load and label the dataset
 def get_label(file_path):
     file_name=tf.strings.split(file_path, os.path.sep)[-1]
     digit=tf.strings.substr(file_name, 0, 1)
@@ -25,16 +32,11 @@ def process_path(file_path):
 
     return img, label
 
-data=tf.data.Dataset.list_files('testimages/*png')
-print(data)
+train_ds=tf.data.Dataset.list_files('{}/*.png'.format(args.trainDir))
+test_ds =tf.data.Dataset.list_files('{}/*.png'.format(args.testDir ))
 
-for f in data.take(5):
-    print(f.numpy())
-
-labeled_data = data.map(process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-
-for image,label in labeled_data.take(10):
-    print(image.numpy().shape, label.numpy())
+labelled_train_ds = train_ds.map(process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+labelled_test_ds  = test_ds .map(process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
 #
 # Prepare data for training
@@ -47,9 +49,10 @@ def show_batch(image_batch, label_batch):
         plt.axis('off')
     plt.show()
 
-train_ds = labeled_data.batch(32).prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+batch_train_ds = labelled_train_ds.shuffle(1000).batch(32).prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+batch_test_ds  = labelled_test_ds .shuffle(1000).batch(32).prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
-image_batch, label_batch = next(iter(train_ds))
+image_batch, label_batch = next(iter(batch_train_ds))
 show_batch(image_batch.numpy(), label_batch.numpy())
 
 #
@@ -65,15 +68,11 @@ model.compile(optimizer='adam',
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
-model.fit(train_ds, epochs=5)
-model.evaluate(train_ds, verbose=2)
+#
+# Train and test
+model.fit     (batch_train_ds, epochs=5)
+model.evaluate(batch_test_ds , verbose=2)
 
-image_batch, label_batch = next(iter(train_ds))
-print(model(image_batch).numpy())
-
-predict_batch=model.predict(image_batch)
-print(predict_batch)
-print(np.argmax(predict_batch))
+image_batch, label_batch = next(iter(batch_test_ds))
 predict_batch=np.argmax(model.predict(image_batch),axis=1)
-print(predict_batch)
 show_batch(image_batch, predict_batch)
