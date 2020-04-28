@@ -19,12 +19,13 @@ def shape_select(event, x, y, flags, param):
     cv2.imshow("image", image)
 
 #change range depending upon filename
-for i in np.arange(3390, 3391):
+for i in np.arange(3390, 3395):
 	#change adress depending upon the location of directory
 	read_add = f"/Users/ameyakunder/pbv3_imagerec/drive-download/IMG_{i}.JPG"
-
+	print(read_add)
 	#checking if the file exists
 	if os.path.exists(read_add):
+		print(read_add)
 		image = cv2.imread(read_add)
 		image = imutils.resize(image, width = 900)
 		#reads and resizes the image
