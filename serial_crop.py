@@ -18,14 +18,15 @@ def shape_select(event, x, y, flags, param):
     cv2.rectangle(image, ref_point[0], ref_point[1], (0, 0, 0), 2)
     cv2.imshow("image", image)
 
+last = input("Enter last file number: ")
+last = int(last)
+
 #change range depending upon filename
-for i in np.arange(3390, 3395):
+for i in np.arange(3390, last):
 	#change adress depending upon the location of directory
 	read_add = f"/Users/ameyakunder/pbv3_imagerec/drive-download/IMG_{i}.JPG"
-	print(read_add)
 	#checking if the file exists
 	if os.path.exists(read_add):
-		print(read_add)
 		image = cv2.imread(read_add)
 		image = imutils.resize(image, width = 900)
 		#reads and resizes the image
