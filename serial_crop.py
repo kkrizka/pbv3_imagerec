@@ -18,11 +18,12 @@ def shape_select(event, x, y, flags, param):
     cv2.rectangle(image, ref_point[0], ref_point[1], (0, 0, 0), 2)
     cv2.imshow("image", image)
 
+first = input("Enter first file number: ")
+first = int(first)
 last = input("Enter last file number: ")
 last = int(last)
 
-#change range depending upon filename
-for i in np.arange(3390, last):
+for i in np.arange(first, last):
 	#change adress depending upon the location of directory
 	read_add = f"/Users/ameyakunder/pbv3_imagerec/drive-download/IMG_{i}.JPG"
 	#checking if the file exists
@@ -56,7 +57,7 @@ for i in np.arange(3390, last):
 			cv2.waitKey(0)
 
 		serial = input("Enter the serial number: ")
-		write_add = f"/Users/ameyakunder/pbv3_imagerec/cropped/{serial}.JPG"
+		write_add = f"/Users/ameyakunder/pbv3_imagerec/pbv3_compvision/cropped/{serial}.JPG"
 		cv2.imwrite(write_add, crop_img)
 		cv2.destroyAllWindows()
 
