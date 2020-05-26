@@ -37,34 +37,10 @@ test_ds =tf.data.Dataset.list_files('{}/*.png'.format(args.testDir ))
 IMG_HEIGHT = 374
 IMG_WIDTH = 650
 
-'''train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-    rescale=1./255,
-    rotation_range=20,
-    width_shift_range=.2,
-    height_shift_range=.2,
-    horizontal_flip=False,
-    zoom_range=0.5)
-
-train_generator = train_datagen.flow_from_directory(
-    args.trainDir,
-    target_size=(IMG_HEIGHT, IMG_WIDTH),
-    class_mode='binary',
-    save_to_dir="/Users/ameyakunder/pbv3_imagerec/pbv3_compvision/Augmented",
-    shuffle=True,
-    batch_size=10
-)
-
-i = 0
-for inputs,outputs in train_generator:
-  i += 1
-  if i > 10:
-    break
-'''
-
 labelled_train_ds = train_ds.map(process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 labelled_test_ds  = test_ds .map(process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 print(type(labelled_train_ds))
-'''
+
 #
 # Prepare data for training
 def show_batch(image_batch, label_batch):
@@ -113,4 +89,4 @@ predict_batch=np.argmax(model.predict(image_batch),axis=1)
 print(model.predict(image_batch))
 print(f"Predict batch : {predict_batch}")
 show_batch(image_batch, predict_batch)
-#print(type(model.predict(image_batch)))'''
+#print(type(model.predict(image_batch)))
