@@ -19,7 +19,7 @@ args=parser.parse_args()
 # Load and label the dataset
 def get_label(file_path):
     file_name=tf.strings.split(file_path, os.path.sep)[-1]
-    digit=tf.strings.substr(file_name, 3, 1)
+    digit=tf.strings.substr(file_name, 4, 1)
     return tf.strings.to_number(digit)
 
 def process_path(file_path):
@@ -34,11 +34,10 @@ def process_path(file_path):
 
 train_ds=tf.data.Dataset.list_files('{}/*.png'.format(args.trainDir))
 test_ds =tf.data.Dataset.list_files('{}/*.png'.format(args.testDir ))
-
 IMG_HEIGHT = 374
 IMG_WIDTH = 650
 
-image_generator = ImageDataGenerator(
+'''train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
     rescale=1./255,
     rotation_range=20,
     width_shift_range=.2,
@@ -46,18 +45,26 @@ image_generator = ImageDataGenerator(
     horizontal_flip=False,
     zoom_range=0.5)
 
-train_data_gen = image_generator.flow_from_directory(
-    batch_size=batch_size,
-    directory=train_ds,
+train_generator = train_datagen.flow_from_directory(
+    args.trainDir,
+    target_size=(IMG_HEIGHT, IMG_WIDTH),
+    class_mode='binary',
+    save_to_dir="/Users/ameyakunder/pbv3_imagerec/pbv3_compvision/Augmented",
     shuffle=True,
-    target_size=(IMG_HEIGHT, IMG_WIDTH)
+    batch_size=10
 )
 
-augmented_images = [train_data_gen[0][0][0] for i in range(5)]
+i = 0
+for inputs,outputs in train_generator:
+  i += 1
+  if i > 10:
+    break
+'''
 
 labelled_train_ds = train_ds.map(process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 labelled_test_ds  = test_ds .map(process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-
+print(type(labelled_train_ds))
+'''
 #
 # Prepare data for training
 def show_batch(image_batch, label_batch):
@@ -77,11 +84,19 @@ show_batch(image_batch.numpy(), label_batch.numpy())
 
 #
 # Make model
-model = tf.keras.models.Sequential([
-    tf.keras.layers.Conv2D(32, (5,5), activation='relu', input_shape=(100,100,1)),
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(10)
-    ])
+model = tf.keras.models.Sequential()
+
+model.add(tf.keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(100,100,1)))
+model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+model.add(tf.keras.layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+
+model.add(tf.keras.layers.Flatten())
+model.add(tf.keras.layers.Dense(64, activation='relu'))
+model.add(tf.keras.layers.Dense(10))
+
 model.summary()
 
 model.compile(optimizer='adam',
@@ -96,5 +111,6 @@ model.evaluate(batch_test_ds , verbose=2)
 image_batch, label_batch = next(iter(batch_test_ds))
 predict_batch=np.argmax(model.predict(image_batch),axis=1)
 print(model.predict(image_batch))
+print(f"Predict batch : {predict_batch}")
 show_batch(image_batch, predict_batch)
-#print(type(model.predict(image_batch)))
+#print(type(model.predict(image_batch)))'''
