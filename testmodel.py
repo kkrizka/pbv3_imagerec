@@ -14,12 +14,10 @@ parser.add_argument('testDir', help='Directory with test dataset')
 
 args=parser.parse_args()
 
-
-#
 # Load and label the dataset
 def get_label(file_path):
     file_name=tf.strings.split(file_path, os.path.sep)[-1]
-    digit=tf.strings.substr(file_name, 4, 1)
+    digit=tf.strings.substr(file_name, 0, 1)
     return tf.strings.to_number(digit)
 
 def process_path(file_path):
@@ -41,7 +39,6 @@ labelled_train_ds = train_ds.map(process_path, num_parallel_calls=tf.data.experi
 labelled_test_ds  = test_ds .map(process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
 print(type(labelled_train_ds))
 
-#
 # Prepare data for training
 def show_batch(image_batch, label_batch):
     plt.figure(figsize=(10,10))
@@ -58,7 +55,6 @@ batch_test_ds  = labelled_test_ds .shuffle(1000).batch(32).prefetch(buffer_size=
 image_batch, label_batch = next(iter(batch_train_ds))
 show_batch(image_batch.numpy(), label_batch.numpy())
 
-#
 # Make model
 model = tf.keras.models.Sequential()
 
@@ -79,7 +75,6 @@ model.compile(optimizer='adam',
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
-#
 # Train and test
 model.fit     (batch_train_ds, epochs=5)
 model.evaluate(batch_test_ds , verbose=2)
